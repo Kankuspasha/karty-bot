@@ -52,9 +52,10 @@ import os
 TOKEN = os.getenv("TOKEN")
 
 if not TOKEN:
-    raise ValueError("TOKEN bulunamadı!")
+    raise Exception("TOKEN bulunamadı!")
 
 bot.run(TOKEN)
+
 
 
 # ---------------- BAŞLAT ----------------
