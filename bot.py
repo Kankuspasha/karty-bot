@@ -47,6 +47,16 @@ async def yuzde(interaction: discord.Interaction, sayi: float, oran: float):
         f"📊 **{sayi}** sayısının **%{oran}**'i = **{sonuc}**"
     )
 
+import os
+
+TOKEN = os.getenv("TOKEN")
+
+if not TOKEN:
+    raise ValueError("TOKEN bulunamadı!")
+
+bot.run(TOKEN)
+
+
 # ---------------- BAŞLAT ----------------
 from config import TOKEN
 bot.run(TOKEN)
