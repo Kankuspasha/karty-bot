@@ -1,6 +1,8 @@
 import os
 import discord
 from discord.ext import commands
+from discord import app_commands
+import math
 
 # -------- INTENTS --------
 intents = discord.Intents.default()
@@ -91,12 +93,240 @@ async def varlik(interaction: discord.Interaction):
         "**Çete Varlıkları:**\n" + "\n".join(reversed(mesajlar))
     )
 
-# ---------------- YIKAMA (İNATİF) ----------------
-@bot.tree.command(name="yıkama", description="Şu anda aktif değil")
-async def yikama(interaction: discord.Interaction):
+
+# ---------------- Yıkama ----------------
+
+@bot.tree.command(name="yıkama", description="Girilen paranın %80'ini hesaplar")
+async def yikama(interaction: discord.Interaction, miktar: float):
+    sonuc = miktar * 0.80
     await interaction.response.send_message(
-        "⛔ Bu özellik şu anda aktif değil."
+        f"💰 Girilen para: **{miktar:,.0f}**\n"
+        f"🧼 Yıkama sonrası (%80): **{sonuc:,.0f}**"
     )
+
+    SIPARIS_KANAL_ID = 1456358667438784542
+
+galeri_ilanlari = []
+
+
+@bot.tree.command(name="galeri", description="Galeri sistemi")
+@app_commands.describe(
+    islem="ekle / temizle / sipariş",
+    arac="Araç adı",
+    fiyat="Fiyat",
+    telefon="Telefon numarası"
+)
+async def galeri(
+    interaction: discord.Interaction,
+    islem: str,
+    arac: str = None,
+    fiyat: int = None,
+    telefon: str = None
+):
+
+# ---------------- Galeri2v ----------------
+
+
+    # 🔹 GALERİ EKLE
+    if islem.lower() == "ekle":
+        if not arac or not fiyat:
+            await interaction.response.send_message(
+                "❌ Kullanım: `/galeri ekle AraçAdı Fiyat`",
+                ephemeral=True
+            )
+            return
+
+        galeri_ilanlari.append(f"🚗 **{arac}** — 💰 `{fiyat:,}$`")
+
+        await interaction.response.send_message(
+            "✅ Araç galeriye eklendi.",
+            ephemeral=True
+        )
+
+    # 🔹 GALERİ TEMİZLE
+    elif islem.lower() == "temizle":
+        galeri_ilanlari.clear()
+        await interaction.response.send_message(
+            "🧹 Tüm galeri ilanları temizlendi.",
+            ephemeral=True
+        )
+
+    # 🔹 GALERİ SİPARİŞ
+SIPARIS_KANAL_ID = 1456358667438784542
+
+galeri_ilanlari = []
+
+
+@bot.tree.command(name="galeri", description="Galeri sistemi")
+@app_commands.describe(
+    islem="ekle / temizle / sipariş",
+    arac="Araç adı",
+    fiyat="Fiyat",
+    telefon="Telefon numarası"
+)
+async def galeri(
+    interaction: discord.Interaction,
+    islem: str,
+    arac: str = None,
+    fiyat: int = None,
+    telefon: str = None
+):
+
+    # 🔹 GALERİ EKLE
+    if islem.lower() == "ekle":
+        if not arac or not fiyat:
+            await interaction.response.send_message(
+                "❌ Kullanım: `/galeri ekle AraçAdı Fiyat`",
+                ephemeral=True
+            )
+            return
+
+        galeri_ilanlari.append(f"🚗 **{arac}** — 💰 `{fiyat:,}$`")
+
+        await interaction.response.send_message(
+            "✅ Araç galeriye eklendi.",
+            ephemeral=True
+        )
+
+    # 🔹 GALERİ TEMİZLE
+    elif islem.lower() == "temizle":
+        galeri_ilanlari.clear()
+        await interaction.response.send_message(
+            "🧹 Tüm galeri ilanları temizlendi.",
+            ephemeral=True
+        )
+
+    # 🔹 GALERİ SİPARİŞ
+    elif islem.lower() == "sipariş":
+        if not telefon or not fiyat:
+            await interaction.response.send_message(
+                "❌ Kullanım: `/galeri sipariş TelefonNumarası Fiyat`",
+                ephemeral=True
+            )
+            return
+
+        kanal = interaction.guild.get_channel(SIPARIS_KANAL_ID)
+        if not kanal:
+            await interaction.response.send_message(
+                "❌ Sipariş kanalı bulunamadı.",
+                ephemeral=True
+            )
+            return
+
+        await kanal.send(
+            "🛒 **Yeni Galeri Siparişi**\n\n"
+            f"👤 **Siparişi Veren:** {interaction.user.mention}\n"
+            f"📞 **Telefon:** `{telefon}`\n"
+            f"💰 **Alınacak Fiyat:** `{fiyat:,}$`"
+        )
+
+        await interaction.response.send_message(
+            "✅ Siparişiniz galeriye iletildi.",
+            ephemeral=True
+        )
+
+    else:
+        await interaction.response.send_message(
+            "❌ Geçersiz işlem.\nKullanım: `ekle / temizle / sipariş`",
+            ephemeral=True
+        )
+
+BASVURU_KATEGORI_ID = 1457177637356044349
+LOG_KANAL_ID = 1457177708478861342
+
+ONAY_ROLLERI = [
+    1456071388493381675,
+    1456088696444158088
+]
+
+GORUCU_ROLLER = [
+    1456071388493381675,
+    1456088696444158088,
+    1456999721355841744
+]
+
+VERILECEK_ROL = 1456090311834206370
+
+
+# ---------- BUTON ----------
+class BasvuruView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+
+    @discord.ui.button(label="Başvuru Oluştur", style=discord.ButtonStyle.green, emoji="🧾")
+    async def basvuru(self, interaction: discord.Interaction, button: discord.ui.Button):
+
+        guild = interaction.guild
+        user = interaction.user
+        kategori = guild.get_channel(BASVURU_KATEGORI_ID)
+
+        overwrites = {
+            guild.default_role: discord.PermissionOverwrite(view_channel=False),
+            user: discord.PermissionOverwrite(view_channel=True, send_messages=True)
+        }
+
+        for rid in GORUCU_ROLLER:
+            role = guild.get_role(rid)
+            if role:
+                overwrites[role] = discord.PermissionOverwrite(view_channel=True)
+
+        kanal = await guild.create_text_channel(
+            name=f"basvuru-{user.name}",
+            category=kategori,
+            overwrites=overwrites
+        )
+
+        mesaj = await kanal.send(
+            "**🧾 Aile Başvuru Formu**\n\n"
+            "Fivem saati:\n"
+            "Aile geçmişi var mı:\n"
+            "Yetenekleri:\n"
+            "Silah kullanmayı biliyor musun:\n"
+        )
+        await mesaj.add_reaction("✅")
+
+        log = guild.get_channel(LOG_KANAL_ID)
+        if log:
+            await log.send(f"📥 **Yeni başvuru:** {user.mention} | {kanal.mention}")
+
+        await interaction.response.send_message(
+            f"Başvurun oluşturuldu: {kanal.mention}",
+            ephemeral=True
+        )
+
+
+# ---------- BOT HAZIR ----------
+@bot.event
+async def on_ready():
+    bot.add_view(BasvuruView())
+    print("Karty Bot aktif.")
+
+
+# ---------- ONAY ----------
+@bot.event
+async def on_raw_reaction_add(payload):
+
+    if str(payload.emoji) != "✅":
+        return
+
+    guild = bot.get_guild(payload.guild_id)
+    channel = guild.get_channel(payload.channel_id)
+    member = guild.get_member(payload.user_id)
+
+    if not member or member.bot:
+        return
+
+    if not any(r.id in ONAY_ROLLERI for r in member.roles):
+        return
+
+    basvuran = next((m for m in channel.members if not m.bot and m != member), None)
+    if not basvuran:
+        return
+
+    rol = guild.get_role(VERILECEK_ROL)
+    if rol:
+        await basvuran.add_roles(rol)
+        await channel.send(f"✅ {basvuran.mention} **başvurusu onaylandı.**")        
 
 # -------- TOKEN --------
 TOKEN = os.getenv("TOKEN")
