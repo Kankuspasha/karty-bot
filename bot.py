@@ -23,31 +23,13 @@ async def on_ready():
 async def ping(interaction: discord.Interaction):
     await interaction.response.send_message("🟢 **Karty Bot aktif!**")
 
-# ---------------- MATEMATİK ----------------
-@bot.tree.command(name="topla", description="İki sayıyı toplar")
-async def topla(interaction: discord.Interaction, a: float, b: float):
-    await interaction.response.send_message(f"🧮 Sonuç: **{a + b}**")
-
-@bot.tree.command(name="cikar", description="İki sayıyı çıkarır")
-async def cikar(interaction: discord.Interaction, a: float, b: float):
-    await interaction.response.send_message(f"🧮 Sonuç: **{a - b}**")
-
-@bot.tree.command(name="carp", description="İki sayıyı çarpar")
-async def carp(interaction: discord.Interaction, a: float, b: float):
-    await interaction.response.send_message(f"🧮 Sonuç: **{a * b}**")
-
-@bot.tree.command(name="bol", description="İki sayıyı böler")
-async def bol(interaction: discord.Interaction, a: float, b: float):
-    if b == 0:
-        await interaction.response.send_message("❌ Sıfıra bölünemez")
-    else:
-        await interaction.response.send_message(f"🧮 Sonuç: **{a / b}**")
-
-@bot.tree.command(name="yuzde", description="Bir sayının yüzdesini hesaplar")
-async def yuzde(interaction: discord.Interaction, sayi: float, oran: float):
-    sonuc = sayi * oran / 100
+# ---------------- HESAPLAMA ----------------
+@bot.tree.command(name="hesap", description="Girilen sayının 1/3'ünü alır")
+async def hesap(interaction: discord.Interaction, sayi: float):
+    sonuc = sayi / 3
     await interaction.response.send_message(
-        f"📊 **{sayi}** sayısının **%{oran}**'i = **{sonuc}**"
+        f"🧮 Girilen sayı: **{sayi:,.0f}**\n"
+        f"📊 Sonuç (1/3): **{sonuc:,.0f}**"
     )
 
 # ---------------- MEKANİK ----------------
@@ -80,15 +62,41 @@ async def galeri(interaction: discord.Interaction):
         if not kanal:
             continue
 
-        ilan += f"📂 <#{kanal_id}>\n"
         async for msg in kanal.history(limit=3):
             if msg.content:
                 ilan += f"• {msg.content}\n"
-        ilan += "\n"
 
-    ilan += "📍 Detaylı bilgi için bizimle iletişime geçin!"
-
+    ilan += "\n📍 Detaylı bilgi için bizimle iletişime geçin!"
     await interaction.response.send_message(ilan)
+
+# ---------------- VARLIK ----------------
+@bot.tree.command(name="varlık", description="Çetenin elindeki varlıkları gösterir")
+async def varlik(interaction: discord.Interaction):
+    kanal = bot.get_channel(1457172366114164893)
+
+    if not kanal:
+        await interaction.response.send_message("Varlık bilgisi bulunamadı.")
+        return
+
+    mesajlar = []
+    async for msg in kanal.history(limit=10):
+        if msg.content:
+            mesajlar.append(msg.content)
+
+    if not mesajlar:
+        await interaction.response.send_message("Varlık bilgisi yok.")
+        return
+
+    await interaction.response.send_message(
+        "**Çete Varlıkları:**\n" + "\n".join(reversed(mesajlar))
+    )
+
+# ---------------- YIKAMA (İNATİF) ----------------
+@bot.tree.command(name="yıkama", description="Şu anda aktif değil")
+async def yikama(interaction: discord.Interaction):
+    await interaction.response.send_message(
+        "⛔ Bu özellik şu anda aktif değil."
+    )
 
 # -------- TOKEN --------
 TOKEN = os.getenv("TOKEN")
