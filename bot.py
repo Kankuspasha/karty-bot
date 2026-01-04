@@ -96,81 +96,20 @@ async def varlik(interaction: discord.Interaction):
 
 # ---------------- Yıkama ----------------
 
-@bot.tree.command(name="yıkama", description="Girilen paranın %80'ini hesaplar")
-async def yikama(interaction: discord.Interaction, miktar: float):
-    sonuc = miktar * 0.80
+@bot.tree.command(name="yıkama", description="Yıkama hesaplama (1/80)")
+@app_commands.describe(miktar="Yıkanacak para miktarı")
+async def yikama(interaction: discord.Interaction, miktar: int):
+
+    sonuc = miktar // 80
+
     await interaction.response.send_message(
-        f"💰 Girilen para: **{miktar:,.0f}**\n"
-        f"🧼 Yıkama sonrası (%80): **{sonuc:,.0f}**"
+        f"🧼 **Yıkama Hesaplaması**\n\n"
+        f"💰 Girilen miktar: `{miktar:,}$`\n"
+        f"📉 Yıkama sonucu (1/80): `{sonuc:,}$`",
+        ephemeral=True
     )
 
-    SIPARIS_KANAL_ID = 1456358667438784542
-
-galeri_ilanlari = []
-
-
-@bot.tree.command(name="galeri", description="Galeri sistemi")
-@app_commands.describe(
-    islem="ekle / temizle / sipariş",
-    arac="Araç adı",
-    fiyat="Fiyat",
-    telefon="Telefon numarası"
-)
-async def galeri(
-    interaction: discord.Interaction,
-    islem: str,
-    arac: str = None,
-    fiyat: int = None,
-    telefon: str = None
-):
-
 # ---------------- Galeri2v ----------------
-
-
-    # 🔹 GALERİ EKLE
-    if islem.lower() == "ekle":
-        if not arac or not fiyat:
-            await interaction.response.send_message(
-                "❌ Kullanım: `/galeri ekle AraçAdı Fiyat`",
-                ephemeral=True
-            )
-            return
-
-        galeri_ilanlari.append(f"🚗 **{arac}** — 💰 `{fiyat:,}$`")
-
-        await interaction.response.send_message(
-            "✅ Araç galeriye eklendi.",
-            ephemeral=True
-        )
-
-    # 🔹 GALERİ TEMİZLE
-    elif islem.lower() == "temizle":
-        galeri_ilanlari.clear()
-        await interaction.response.send_message(
-            "🧹 Tüm galeri ilanları temizlendi.",
-            ephemeral=True
-        )
-
-    # 🔹 GALERİ SİPARİŞ
-SIPARIS_KANAL_ID = 1456358667438784542
-
-galeri_ilanlari = []
-
-
-@bot.tree.command(name="galeri", description="Galeri sistemi")
-@app_commands.describe(
-    islem="ekle / temizle / sipariş",
-    arac="Araç adı",
-    fiyat="Fiyat",
-    telefon="Telefon numarası"
-)
-async def galeri(
-    interaction: discord.Interaction,
-    islem: str,
-    arac: str = None,
-    fiyat: int = None,
-    telefon: str = None
-):
 
     # 🔹 GALERİ EKLE
     if islem.lower() == "ekle":
