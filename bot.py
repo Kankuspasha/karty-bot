@@ -2,6 +2,9 @@ import os
 import discord
 from discord.ext import commands
 from discord import app_commands
+import asyncio
+from aiohttp import web
+
 
 # -------- INTENTS --------
 intents = discord.Intents.default()
@@ -22,11 +25,29 @@ GALERI_KANALLARI = [
     1456089948129067038
 ]
 
+async def start_web():
+    port = int(os.environ.get("PORT", 10000))
+    app = web.Application()
+
+    async def health(request):
+        return web.Response(text="Karty Bot aktif")
+
+    app.router.add_get("/", health)
+
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+
+
 # -------- READY (TEK) --------
 @bot.event
 async def on_ready():
     await bot.tree.sync()
+    bot.loop.create_task(start_web())
     print(f"{bot.user} aktif!")
+
+
 
 # ---------------- PING ----------------
 @bot.tree.command(name="ping", description="Karty Bot çalışıyor mu?")
